@@ -1,0 +1,7 @@
+# Vibe Local State & Keys
+.vibe_config/
+.env
+
+# Docker / System
+.DS_Store
+*.log
