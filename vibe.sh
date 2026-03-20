@@ -10,9 +10,7 @@ export bind_path="/app"
 
 PASS_ARGS=()
 
-str_arr=("[ Runner for Vibe isolation container ]"
-         "* Override default jail path:"
-         "  $ ./vibe.sh --jailpath=/foo/bar" " ")
+str_arr=("😽 vibe.sh - isolation container runner 😽")
 
 # Order-independent parsing
 while [[ "$#" -gt 0 ]]; do
@@ -28,9 +26,10 @@ while [[ "$#" -gt 0 ]]; do
             ;;
     esac
 done
-str_arr+=("[ Jail path config: ]" "host path ${JAIL_PATH},"
-          "agent fs path ${bind_path}")
-printf "😽 %s\n" "${str_arr[@]}"
+str_arr+=("😽 jail path config: "
+          "host work path: ${JAIL_PATH}"
+          "agent fs mount path: ${bind_path}")
+printf "%s\n" "${str_arr[@]}"
 
 # Sanity check: Docker group
 [[ $(groups) =~ "docker" ]] || { echo "Error: $(whoami) not in docker group."; exit 1; }

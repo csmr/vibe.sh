@@ -4,7 +4,7 @@
 # For (Debian) Linux.
 
 # 🛡️ Isolation Hygiene
-- container jail : agent only accesses `$JAIL_PATH`, mounted as `/app`.
+- container jail : agent only accesses `$JAIL_PATH`, default mount at `/app`.
 - identity       : runs as host $UID to prevent root-owned file issues.
 - toolchain      : bundles Vibe, Deno 2.7, and Elixir/Mix.
 - persistence    : API keys and sessions stored in local .vibe_config/.
@@ -18,11 +18,11 @@
 
 2. Clone & Prepare:
    $ cd ~/Mutonex
-   $ git clone git@github.com:YOUR_USERNAME/vibe.sh.git && cd vibe.sh
+   $ git clone git@github.com:csmr/vibe.sh.git && cd vibe.sh
    $ chmod +x vibe.sh
 
 3. Configure default working directory:
-   - Edit 'vibe.sh' line with 'export JAIL_PATH=' with your project root path.
+   - Edit `vibe.sh` line with `export JAIL_PATH=` with repo-path for Vibe jail.
 
 # 🛠️ Usage
 All arguments are forwarded directly to the Vibe binary.
