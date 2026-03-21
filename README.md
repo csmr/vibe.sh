@@ -9,7 +9,7 @@ Isolation jail for Mistral Vibe agent on Linux.
 `vibe.sh` sets container config with working directory and its container
 mountpoint, builds Vibe and devtools Dockerfile image, and runs the image
 as a compose service with Vibe as entrypoint. Agent operates within
-isolated container filesystem, and can control containers.
+isolated container filesystem, and optionally can control containers.
 
 Answer to how Vibe would be easy to use for developing
 Mutonex game project. Be wary, supervise agent.
@@ -23,6 +23,23 @@ Mutonex game project. Be wary, supervise agent.
 - Persistence: API keys/sessions in `.vibe_config/`.
 - DooD: Docker-out-of-Docker for test containers.
 
+### Quickstart
+
+```bash
+# Clone to home directory
+cd ~
+git clone git@github.com:csmr/vibe.sh.git
+chmod +x vibe.sh/vibe.sh
+
+# Add vibe.sh to env PATH (ie. ~/.bashrc or ~/.zshrc)
+export PATH="$HOME/vibe.sh:$PATH"
+
+# Run from any project directory
+cd /path/to/your/project
+vibe.sh --setup --jailpath=/path/to/your/project
+```
+
+
 ### Setup 🚀
 
 1. Install Docker & Compose v2 (Debian):
@@ -33,26 +50,26 @@ Mutonex game project. Be wary, supervise agent.
 
 2. Clone and set execute bit:
    ```bash
-   git clone git@github.com:csmr/vibe.sh.git && cd vibe.sh
-   chmod +x vibe.sh
+   git clone git@github.com:csmr/vibe.sh.git
+   chmod +x vibe.sh/vibe.sh
    ```
 
 3. Configure
 
   * Default working directory:
-    - Edit `vibe.sh` line with `export JAIL_PATH=` to set repo path.
+    * Edit `vibe.sh/vibe.sh` line with `export JAIL_PATH=` to set repo path.
 
   * Enable host Docker control from container/make read-only
-    - In `compose.yaml` section `volumes:`, uncomment line with
+    * In `vibe.sh/compose.yaml` section `volumes:`, uncomment line with
       * `- /var/run/docker.sock:...`
-    - Note that agent container control may pose security risks.
-    - Read-only mode restriction: add `:ro` postfix:
+    * Note that agent container control may pose security risks.
+    * Read-only mode restriction: add `:ro` postfix:
       * `- /var/run/docker.sock:/var/run/docker.sock:ro`
       * prevents agents container control while allowing inspection/tests.
 
 ### Usage 🛠️
 
-All arguments pass directly to Vibe.
+All arguments pass directly to Vibe, except `--jailpath`.
 
 #### Initialize
 
@@ -78,4 +95,3 @@ All arguments pass directly to Vibe.
 No affiliation with Mistral or Vibe. No guarantees.
 
 See LICENSE, released under MIT by Casimir Pohjanraito 2026.
-
