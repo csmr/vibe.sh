@@ -1,42 +1,43 @@
 ```zig
 # vibe.sh 😽
-# Isolation jail for the Mistral Vibe agent.
-# For (Debian) Linux.
+# Isolation jail for Mistral Vibe agent on Linux.
 
-# 🛡️ Isolation Hygiene
-- container jail : agent only accesses `$JAIL_PATH`, default mount at `/app`.
-- identity       : runs as host $UID to prevent root-owned file issues.
-- toolchain      : bundles Vibe, Deno 2.7, and Elixir/Mix.
-- persistence    : API keys and sessions stored in local .vibe_config/.
-- DooD           : "Docker-out-of-Docker" to run sibling test containers.
+# 🛡️ Isolation
+- Jail: Agent accesses only `$JAIL_PATH` (mounted at `/app`).
+- Identity: Runs as host $UID to avoid root-owned files.
+- Toolchain: Vibe, Deno 2.7, Elixir/Mix.
+- Persistence: API keys/sessions in `.vibe_config/`.
+- DooD: Docker-out-of-Docker for test containers.
 
 # 🚀 Setup
-
 1. Install Docker & Compose v2 (Debian):
    $ sudo apt update && sudo apt install -y docker.io docker-compose-v2
-   $ sudo usermod -aG docker $USER  # Requires logout/login
+   $ sudo usermod -aG docker $USER  # Logout/login required
 
-2. Clone & Prepare:
-   $ cd ~/Mutonex
+2. Clone and set execute bit:
    $ git clone git@github.com:csmr/vibe.sh.git && cd vibe.sh
    $ chmod +x vibe.sh
 
 3. Configure default working directory:
-   - Edit `vibe.sh` line with `export JAIL_PATH=` with repo-path for Vibe jail.
+   Edit `vibe.sh` line with `export JAIL_PATH=` to set repo path.
 
 # 🛠️ Usage
-All arguments are forwarded directly to the Vibe binary.
+All arguments pass directly to Vibe.
 
-## Initialize/Setup
+## Initialize
 $ ./vibe.sh --setup
 
 ## Resume Session
 $ ./vibe.sh --continue
 $ ./vibe.sh --resume <session_id>
 
-## Override Default Path
-$ ./vibe.sh --jaildir=/path/to/other/project
+## Override Path
+$ ./vibe.sh --jaildir=/path/to/project
 
-# Casimir Pohjanraito 2026
-# This project just for convinience. No affiliation to Mistral or Vibe, no ownership or guarantees implied.
+# Principles
+`vibe.sh` sets container config with working directory and container mountpoint, builds Vibe and devtools Dockerfile image, and runs the image as a compose service with Vibe as entrypoint. Agent operates within isolated container filesystem, and can control containers.
+
+# Disclaimer
+No affiliation with Mistral or Vibe. No guarantees.
+Casimir Pohjanraito 2026
 ```
