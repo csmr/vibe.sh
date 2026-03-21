@@ -4,11 +4,11 @@ services:
     user: "${UA_UID}:${UA_GID}"
     working_dir: "${bind_path}"
     volumes:
-      # mounts "host source dir:agent jail path target"
+      # mounts jail path:at containers bind path
       - "${JAIL_PATH}:${bind_path}"
       # configs jail persists vibe API key & trusted_folders
       - ./.vibe_config:/home/python/.vibe
-      # Docker Socket enables test container runs
+      # Docker Socket allows control & test runs
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TERM=xterm-256color

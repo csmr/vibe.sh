@@ -5,13 +5,11 @@ set -e
 # default working directory path, aka jail dir
 export JAIL_PATH="${HOME}/Mutonex/repository"
 
-# target mount path, in container fs
+# target mount path, in container filesystem
 export bind_path="/app"
 
-PASS_ARGS=()
-
-str_arr=("😽 vibe.sh - isolation container runner 😽")
-
+str_arr=("vibe.sh 😽 isolation container runner")
+args=()
 # Order-independent parsing
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -21,14 +19,15 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         *)
             # Capture all other flags for Vibe
-            PASS_ARGS+=("$1")
+            args+=("$1")
             shift
             ;;
     esac
 done
-str_arr+=("😽 jail path config: "
+str_arr+=("container volume mount config: "
           "host work path: ${JAIL_PATH}"
-          "agent fs mount path: ${bind_path}")
+          "agent fs mount path: ${bind_path}"
+          "vibe args: ${args}")
 printf "%s\n" "${str_arr[@]}"
 
 # Sanity check: Docker group
@@ -42,5 +41,6 @@ export UA_UID=$(id -u)
 export UA_GID=$(id -g)
 
 # Build and run
+source version_audit.sh
 docker-compose build mistral-agent
-docker-compose run --rm mistral-agent "${PASS_ARGS[@]}"
+docker-compose run --rm mistral-agent "${args[@]}"

@@ -1,43 +1,83 @@
-```zig
 # vibe.sh 😽
-# Isolation jail for Mistral Vibe agent on Linux.
 
-# 🛡️ Isolation
-- Jail: Agent accesses only `$JAIL_PATH` (mounted at `/app`).
+```bash
+Isolation jail for Mistral Vibe agent on Linux.
+```
+
+### Description
+
+`vibe.sh` sets container config with working directory and its container
+mountpoint, builds Vibe and devtools Dockerfile image, and runs the image
+as a compose service with Vibe as entrypoint. Agent operates within
+isolated container filesystem, and can control containers.
+
+Answer to how Vibe would be easy to use for developing
+Mutonex game project. Be wary, supervise agent.
+
+### Perks 🛡️
+
+- Jail: Agent accesses only `$JAIL_PATH`, default mount at `/app`.
+- Daring: to let agent auto-execute commands in the filesystem.
 - Identity: Runs as host $UID to avoid root-owned files.
 - Toolchain: Vibe, Deno 2.7, Elixir/Mix.
 - Persistence: API keys/sessions in `.vibe_config/`.
 - DooD: Docker-out-of-Docker for test containers.
 
-# 🚀 Setup
+### Setup 🚀
+
 1. Install Docker & Compose v2 (Debian):
-   $ sudo apt update && sudo apt install -y docker.io docker-compose-v2
-   $ sudo usermod -aG docker $USER  # Logout/login required
+   ```bash
+   sudo apt update && sudo apt install -y docker.io docker-compose-v2
+   sudo usermod -aG docker $USER  # Logout/login required
+   ```
 
 2. Clone and set execute bit:
-   $ git clone git@github.com:csmr/vibe.sh.git && cd vibe.sh
-   $ chmod +x vibe.sh
+   ```bash
+   git clone git@github.com:csmr/vibe.sh.git && cd vibe.sh
+   chmod +x vibe.sh
+   ```
 
 3. Configure default working directory:
+
    Edit `vibe.sh` line with `export JAIL_PATH=` to set repo path.
 
-# 🛠️ Usage
+### Usage 🛠️
+
 All arguments pass directly to Vibe.
 
-## Initialize
-$ ./vibe.sh --setup
+#### Initialize
 
-## Resume Session
-$ ./vibe.sh --continue
-$ ./vibe.sh --resume <session_id>
-
-## Override Path
-$ ./vibe.sh --jaildir=/path/to/project
-
-# Principles
-`vibe.sh` sets container config with working directory and container mountpoint, builds Vibe and devtools Dockerfile image, and runs the image as a compose service with Vibe as entrypoint. Agent operates within isolated container filesystem, and can control containers.
-
-# Disclaimer
-No affiliation with Mistral or Vibe. No guarantees.
-Casimir Pohjanraito 2026
+```bash
+./vibe.sh --setup
 ```
+
+#### Resume session
+
+```bash
+./vibe.sh --continue
+./vibe.sh --"resume <session_id>"
+```
+
+#### Override jail path
+
+```bash
+./vibe.sh --jailpath=/path/to/project
+```
+
+#### Secure docker.socket
+
+To restrict Docker socket access to read-only mode, modify that one line in `compose.yaml`:
+
+```yaml
+volumes:
+  - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+This prevents the agent from creating/modifying containers while allowing inspection/tests.
+
+### Disclaimer
+
+No affiliation with Mistral or Vibe. No guarantees.
+
+See LICENSE, released under MIT by Casimir Pohjanraito 2026.
+
