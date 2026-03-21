@@ -37,9 +37,18 @@ Mutonex game project. Be wary, supervise agent.
    chmod +x vibe.sh
    ```
 
-3. Configure default working directory:
+3. Configure
 
-   Edit `vibe.sh` line with `export JAIL_PATH=` to set repo path.
+  * Default working directory:
+    - Edit `vibe.sh` line with `export JAIL_PATH=` to set repo path.
+
+  * Enable host Docker control from container/make read-only
+    - In `compose.yaml` section `volumes:`, uncomment line with
+      * `- /var/run/docker.sock:...`
+    - Note that agent container control may pose security risks.
+    - Read-only mode restriction: add `:ro` postfix:
+      * `- /var/run/docker.sock:/var/run/docker.sock:ro`
+      * prevents agents container control while allowing inspection/tests.
 
 ### Usage 🛠️
 
@@ -63,17 +72,6 @@ All arguments pass directly to Vibe.
 ```bash
 ./vibe.sh --jailpath=/path/to/project
 ```
-
-#### Secure docker.socket
-
-To restrict Docker socket access to read-only mode, modify that one line in `compose.yaml`:
-
-```yaml
-volumes:
-  - /var/run/docker.sock:/var/run/docker.sock:ro
-```
-
-This prevents the agent from creating/modifying containers while allowing inspection/tests.
 
 ### Disclaimer
 
