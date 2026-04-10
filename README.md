@@ -1,4 +1,4 @@
-# vibe.sh 😽
+# contvibe.sh 😽
 
 ```bash
 Isolation jail for Mistral Vibe agent on Linux.
@@ -6,10 +6,12 @@ Isolation jail for Mistral Vibe agent on Linux.
 
 ### Description
 
-`vibe.sh` sets container config with working directory and its container
-mountpoint, builds Vibe and devtools Dockerfile image, and runs the image
-as a compose service with Vibe as entrypoint. Agent operates within
-isolated container filesystem, and optionally can control containers.
+`contvibe.sh` sets container config with working directory and its container
+mountpoint, builds Vibe and devtools `Dockerfile` image with Vibe as
+entrypoint, and runs the image using service from `compose.yaml`.
+
+Agent operates within isolated container filesystem, and optionally can
+control containers.
 
 Answer to how Vibe would be easy to use for developing
 Mutonex game project. Be wary, supervise agent.
@@ -28,15 +30,15 @@ Mutonex game project. Be wary, supervise agent.
 ```bash
 # Clone to home directory
 cd ~
-git clone git@github.com:csmr/vibe.sh.git
-chmod +x vibe.sh/vibe.sh
+git clone git@github.com:csmr/contvibe.sh.git
+chmod +x contvibe.sh/contvibe.sh
 
-# Add vibe.sh to env PATH (ie. ~/.bashrc or ~/.zshrc)
-export PATH="$HOME/vibe.sh:$PATH"
+# Add contvibe.sh to env PATH (ie. ~/.bashrc or ~/.zshrc)
+export PATH="$HOME/contvibe.sh:$PATH"
 
 # Run from any project directory
 cd /path/to/your/project
-vibe.sh --setup --jailpath=/path/to/your/project
+contvibe.sh --setup --jailpath=/path/to/your/project
 ```
 
 
@@ -50,22 +52,21 @@ vibe.sh --setup --jailpath=/path/to/your/project
 
 2. Clone and set execute bit:
    ```bash
-   git clone git@github.com:csmr/vibe.sh.git
-   chmod +x vibe.sh/vibe.sh
+   git clone git@github.com:csmr/contvibe.sh.git
+   chmod +x contvibe.sh/contvibe.sh
    ```
 
 3. Configure
 
   * Default working directory:
-    * Edit `vibe.sh/vibe.sh` line with `export JAIL_PATH=` to set repo path.
+    * Edit `contvibe.sh/contvibe.sh` line with `export JAIL_PATH=` to set repo path.
 
   * Enable host Docker control from container/make read-only
-    * In `vibe.sh/compose.yaml` section `volumes:`, uncomment line with
-      * `- /var/run/docker.sock:...`
-    * Note that agent container control may pose security risks.
-    * Read-only mode restriction: add `:ro` postfix:
+    * In `contvibe.sh/compose.yaml` section `volumes:`, uncomment line with
       * `- /var/run/docker.sock:/var/run/docker.sock:ro`
       * prevents agents container control while allowing inspection/tests.
+    * Disable read-only mode restriction: remove `:ro` postfix
+      * Note that agent container control may pose security risks.
 
 ### Usage 🛠️
 
@@ -74,20 +75,20 @@ All arguments pass directly to Vibe, except `--jailpath`.
 #### Initialize
 
 ```bash
-./vibe.sh --setup
+./contvibe.sh --setup
 ```
 
 #### Resume session
 
 ```bash
-./vibe.sh --continue
-./vibe.sh --"resume <session_id>"
+./contvibe.sh --continue
+./contvibe.sh --"resume <session_id>"
 ```
 
 #### Override jail path
 
 ```bash
-./vibe.sh --jailpath=/path/to/project
+./contvibe.sh --jailpath=/path/to/project
 ```
 
 ### Disclaimer

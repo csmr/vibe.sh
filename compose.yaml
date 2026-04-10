@@ -9,7 +9,7 @@ services:
       # configs jail persists vibe API key & trusted_folders
       - ./.vibe_config:/home/python/.vibe
       # Docker Socket allows control & test runs
-      #- /var/run/docker.sock:/var/run/docker.sock
+      #- /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - TERM=xterm-256color
       - HOME=/home/python

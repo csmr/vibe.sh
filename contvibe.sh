@@ -9,9 +9,9 @@ export JAIL_PATH="${HOME}/Mutonex/repository"
 export bind_path="/app"
 
 # vibe.sh script location
-vibesh_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+contvibe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-str_arr=("vibe.sh 😽 isolation container runner")
+str_arr=("contvibe.sh 😽 isolation container runner")
 args=()
 # Order-independent parsing
 while [[ "$#" -gt 0 ]]; do
@@ -37,14 +37,14 @@ printf "%s\n" "${str_arr[@]}"
 [[ $(groups) =~ "docker" ]] || { echo "Error: $(whoami) not in docker group."; exit 1; }
 
 # Prep local config dir so Docker doesn't make it as root
-mkdir -p "${vibesh_path}/.vibe_config"
+mkdir -p "${contvibe_path}/.vibe_config"
 
 # Identity exports for the container
 export UA_UID=$(id -u)
 export UA_GID=$(id -g)
 
 # Build and run
-cd "${vibesh_path}" # working dir for docker-compose
+cd "${contvibe_path}" # working dir for docker-compose
 source version_audit.sh
 docker-compose build mistral-agent
 docker-compose run --rm mistral-agent "${args[@]}"
