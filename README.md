@@ -53,16 +53,16 @@ contvibe.sh --setup --jailpath=/path/to/your/project
 2. Clone and set execute bit:
    ```bash
    git clone git@github.com:csmr/contvibe.sh.git
-   chmod +x contvibe.sh/contvibe.sh
+   chmod +x contvibe/contvibe.sh
    ```
 
 3. Configure
 
   * Default working directory:
-    * Edit `contvibe.sh/contvibe.sh` line with `export JAIL_PATH=` to set repo path.
+    * Edit `contvibe/contvibe.sh` line with `export JAIL_PATH=` to set repo path.
 
   * Enable host Docker control from container/make read-only
-    * In `contvibe.sh/compose.yaml` section `volumes:`, uncomment line with
+    * In `contvibe/compose.yaml` section `volumes:`, uncomment line with
       * `- /var/run/docker.sock:/var/run/docker.sock:ro`
       * prevents agents container control while allowing inspection/tests.
     * Disable read-only mode restriction: remove `:ro` postfix
@@ -90,6 +90,25 @@ All arguments pass directly to Vibe, except `--jailpath`.
 ```bash
 ./contvibe.sh --jailpath=/path/to/project
 ```
+
+#### System Prompts
+
+Load instructions from `AGENTS.md`:
+
+```bash
+./contvibe.sh --context-file /home/python/AGENTS.md
+```
+
+The `AGENTS.md` file contains system-level guidelines and is automatically mounted to `/home/python/AGENTS.md` in the container (read-only).
+
+**Access methods:**
+- Explicit loading: `--context-file /home/python/AGENTS.md`
+- Direct reading: Agent can `cat /home/python/AGENTS.md`
+- Environment variable: `VIBE_SYSTEM_PROMPT=/home/python/AGENTS.md`
+
+**File locations:**
+- Host: `./AGENTS.md` (version controlled)
+- Container: `/home/python/AGENTS.md` (read-only)
 
 ### Disclaimer
 
