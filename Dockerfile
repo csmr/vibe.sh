@@ -37,11 +37,26 @@ COPY --from=builder /root/.deno/bin/deno /usr/local/bin/deno
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin/vibe /usr/local/bin/vibe
 
-# Create work dirs
-RUN mkdir -p /home/python/.vibe /app
+# Create work dirs and prompts directory
+RUN mkdir -p /home/python/.vibe /home/python/.vibe/prompts /app
 WORKDIR /app
 
 # Copy agent instructions (will be overridden by volume mount if present)
 COPY AGENTS.md /home/python/AGENTS.md
+
+# Create a custom system prompt that includes AGENTS.md instructions
+RUN echo '# Custom System Prompt for contvibe' > /home/python/.vibe/prompts/contvibe.md && \
+    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo 'You are a helpful AI coding assistant running in a containerized environment.' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo 'The following project-specific guidelines apply:' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo '```' >> /home/python/.vibe/prompts/contvibe.md && \
+    cat /home/python/AGENTS.md >> /home/python/.vibe/prompts/contvibe.md && \
+    echo '```' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
+    echo 'Always follow these guidelines when working on this project.' >> /home/python/.vibe/prompts/contvibe.md
+
+# Create config to use our custom prompt
+RUN echo 'system_prompt_id = "contvibe"' > /home/python/.vibe/config.toml
 
 ENTRYPOINT ["vibe"]
