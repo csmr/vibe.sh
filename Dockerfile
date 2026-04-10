@@ -1,20 +1,34 @@
 # 1. BUILD STAGE
 FROM python:3.12-slim-bookworm as builder
 
-# Install everything needed to download/build
-RUN apt-get update && apt-get install -y curl unzip && rm -rf /var/lib/apt/lists/*
+# Install everything needed to download/build (pinned versions)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      curl \
+      unzip=6.0-28 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Deno & Vibe
-RUN curl -fsSL https://deno.land/install.sh | sh -s v2.7.7
+# Install Deno (check for latest stable version)
+RUN curl -fsSL https://deno.land/x/install/install.sh -o /tmp/deno_install.sh && \
+    /bin/sh /tmp/deno_install.sh && \
+    rm /tmp/deno_install.sh
+
+# Install mistral-vibe (get latest version)
 RUN pip install --no-cache-dir mistral-vibe
 
 # 2. RUNTIME STAGE
 FROM python:3.12-slim-bookworm
 
-# Only install what is strictly necessary to RUN the app
+# Minimal runtime dependencies only (pinned versions)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends elixir && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends \
+      elixir=1.14.0.dfsg-2 \
+    && rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Remove package managers and build tools from final image
+RUN rm -rf /usr/bin/apt /usr/bin/apt-get /usr/bin/dpkg /var/lib/dpkg
 
 # Copy Deno binary (v2.7.7 uses /root/.deno/bin/deno)
 COPY --from=builder /root/.deno/bin/deno /usr/local/bin/deno
@@ -26,5 +40,8 @@ COPY --from=builder /usr/local/bin/vibe /usr/local/bin/vibe
 # Create work dirs
 RUN mkdir -p /home/python/.vibe /app
 WORKDIR /app
+
+# Copy agent instructions (will be overridden by volume mount if present)
+COPY AGENTS.md /home/python/AGENTS.md
 
 ENTRYPOINT ["vibe"]
