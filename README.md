@@ -1,24 +1,24 @@
 # contvibe.sh 😽
 
 ```bash
-Isolation jail for Mistral Vibe agent on Linux.
+Isolation cont for Mistral Vibe agent on Linux.
 ```
 
 ### Description
 
-`contvibe.sh` sets container config with working directory and its container
-mountpoint, builds Vibe and devtools `Dockerfile` image with Vibe as
-entrypoint, and runs the image using service from `compose.yaml`.
+Using filesystem isolation, agent operates in a containers working 
+directory, only. Optionally, could be made to control containers.
 
-Agent operates within isolated container filesystem, and optionally can
-control containers.
+Script `contvibe.sh` sets container config with working directory and
+its container mountpoint, builds Vibe and devtools `Dockerfile` image with
+Vibe as entrypoint, and runs the image using service from `compose.yaml`.
 
 Answer to how Vibe would be easy to use for developing
 Mutonex game project. Be wary, supervise agent.
 
 ### Perks 🛡️
 
-- Jail: Agent accesses only `$JAIL_PATH`, default mount at `/app`.
+- Path-isolation: Agent accesses only `$JAIL_PATH`, default mount at `/app`.
 - Daring: to let agent auto-execute commands in the filesystem.
 - Identity: Runs as host $UID to avoid root-owned files.
 - Toolchain: Vibe, Deno 2.7, Elixir/Mix, Git, build-essential.
@@ -62,6 +62,7 @@ contvibe.sh --setup --jailpath=/path/to/your/project
     * Edit `contvibe/contvibe.sh` line with `export JAIL_PATH=` to set repo path.
 
   * Enable host Docker control from container/make read-only
+    * Rebuild image with `docker-cli` added in `Dockerfile` runtime dev tools.
     * In `contvibe/compose.yaml` section `volumes:`, uncomment line with
       * `- /var/run/docker.sock:/var/run/docker.sock:ro`
       * prevents agents container control while allowing inspection/tests.

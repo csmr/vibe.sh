@@ -9,9 +9,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Deno (check for latest stable version)
-RUN curl -fsSL https://deno.land/x/install/install.sh -o /tmp/deno_install.sh && \
-    /bin/sh /tmp/deno_install.sh && \
-    rm /tmp/deno_install.sh
+RUN curl -fsSL https://deno.land/x/install/install.sh -o /app/tmp/deno_install.sh && \
+    /bin/sh /app/tmp/deno_install.sh && \
+    rm /app/tmp/deno_install.sh
 
 # Install mistral-vibe (get latest version)
 RUN pip install --no-cache-dir mistral-vibe
@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir mistral-vibe
 # 2. RUNTIME STAGE
 FROM python:3.12-slim-bookworm
 
-# Install runtime dependencies including development tools (pinned versions)
+# Install runtime deps, dev tools (pinned versions)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       elixir=1.14.0.dfsg-2 \
@@ -29,6 +29,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/* && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+#  elixir package manager
+RUN mix local.hex --force
 
 # Remove package managers to prevent installation of unwanted packages
 # but keep git and build tools for development
