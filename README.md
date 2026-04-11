@@ -21,7 +21,7 @@ Mutonex game project. Be wary, supervise agent.
 - Jail: Agent accesses only `$JAIL_PATH`, default mount at `/app`.
 - Daring: to let agent auto-execute commands in the filesystem.
 - Identity: Runs as host $UID to avoid root-owned files.
-- Toolchain: Vibe, Deno 2.7, Elixir/Mix.
+- Toolchain: Vibe, Deno 2.7, Elixir/Mix, Git, build-essential.
 - Persistence: API keys/sessions in `.vibe_config/`.
 - DooD: Docker-out-of-Docker for test containers.
 
@@ -91,24 +91,7 @@ All arguments pass directly to Vibe, except `--jailpath`.
 ./contvibe.sh --jailpath=/path/to/project
 ```
 
-#### System Prompts
 
-Load instructions from `AGENTS.md`:
-
-```bash
-./contvibe.sh --context-file /home/python/AGENTS.md
-```
-
-The `AGENTS.md` file contains system-level guidelines and is automatically mounted to `/home/python/AGENTS.md` in the container (read-only).
-
-**Access methods:**
-- Explicit loading: `--context-file /home/python/AGENTS.md`
-- Direct reading: Agent can `cat /home/python/AGENTS.md`
-- Environment variable: `VIBE_SYSTEM_PROMPT=/home/python/AGENTS.md`
-
-**File locations:**
-- Host: `./AGENTS.md` (version controlled)
-- Container: `/home/python/AGENTS.md` (read-only)
 
 ### Disclaimer
 

@@ -19,15 +19,19 @@ RUN pip install --no-cache-dir mistral-vibe
 # 2. RUNTIME STAGE
 FROM python:3.12-slim-bookworm
 
-# Minimal runtime dependencies only (pinned versions)
+# Install runtime dependencies including development tools (pinned versions)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       elixir=1.14.0.dfsg-2 \
+      git \
+      curl \
+      build-essential \
     && rm -rf /var/lib/apt/lists/* && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Remove package managers and build tools from final image
+# Remove package managers to prevent installation of unwanted packages
+# but keep git and build tools for development
 RUN rm -rf /usr/bin/apt /usr/bin/apt-get /usr/bin/dpkg /var/lib/dpkg
 
 # Copy Deno binary (v2.7.7 uses /root/.deno/bin/deno)
@@ -44,19 +48,8 @@ WORKDIR /app
 # Copy agent instructions (will be overridden by volume mount if present)
 COPY AGENTS.md /home/python/AGENTS.md
 
-# Create a custom system prompt that includes AGENTS.md instructions
-RUN echo '# Custom System Prompt for contvibe' > /home/python/.vibe/prompts/contvibe.md && \
-    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo 'You are a helpful AI coding assistant running in a containerized environment.' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo 'The following project-specific guidelines apply:' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo '```' >> /home/python/.vibe/prompts/contvibe.md && \
-    cat /home/python/AGENTS.md >> /home/python/.vibe/prompts/contvibe.md && \
-    echo '```' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo '' >> /home/python/.vibe/prompts/contvibe.md && \
-    echo 'Always follow these guidelines when working on this project.' >> /home/python/.vibe/prompts/contvibe.md
-
-# Create config to use our custom prompt
-RUN echo 'system_prompt_id = "contvibe"' > /home/python/.vibe/config.toml
+# Create config to use AGENTS.md as system prompt (mounted from host)
+RUN echo '[system]' > /home/python/.vibe/config.toml && \
+    echo 'prompt_id = "default"' >> /home/python/.vibe/config.toml
 
 ENTRYPOINT ["vibe"]

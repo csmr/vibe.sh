@@ -8,6 +8,8 @@ services:
       - "${JAIL_PATH}:${bind_path}"
       # configs jail persists vibe API key & trusted_folders
       - ./.vibe_config:/home/python/.vibe
+      # Agent instructions and guidelines (read-only)
+      - ./AGENTS.md:/home/python/AGENTS.md:ro
       # Docker Socket allows control & test runs
       #- /var/run/docker.sock:/var/run/docker.sock:ro
     environment:

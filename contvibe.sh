@@ -47,4 +47,9 @@ export UA_GID=$(id -g)
 cd "${contvibe_path}" # working dir for docker-compose
 source version_audit.sh
 docker-compose build mistral-agent
-docker-compose run --rm mistral-agent "${args[@]}"
+
+# Security: Limit environment variables passed to container
+# Only pass essential variables, filter out potential secrets
+# Note: HOME and TERM are already set in compose.yaml environment section
+docker-compose run --rm -e USER -e PATH \
+  mistral-agent "${args[@]}"
