@@ -2,8 +2,8 @@
 
 set -e
 
-# default working directory path, aka jail path
-export JAIL_PATH="${HOME}/Mutonex/repository"
+# default working directory path (defaults to current directory)
+export WORK_PATH="${WORK_PATH:-$(pwd)}"
 
 # target mount path, in container filesystem
 export bind_path="/app"
@@ -11,13 +11,18 @@ export bind_path="/app"
 # vibe.sh script location
 contvibe_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-str_arr=("contvibe.sh 😽 isolation container runner")
+# agent comtainer home dir
+vibe_home="/home/python"
+export VIBE_HOME="${vibe_home}"
+v_ver=$(cat "${contvibe_path}/VERSION" 2>/dev/null || echo "v0.2.0-dev")
+
+str_arr=("contvibe.sh ${v_ver} 😽 sandbox container runner")
 args=()
 # Order-independent parsing
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --jailpath=*)
-            export JAIL_PATH="${1#*=}"
+        --workpath=*|--jailpath=*)
+            export WORK_PATH="${1#*=}"
             shift
             ;;
         *)
@@ -27,8 +32,12 @@ while [[ "$#" -gt 0 ]]; do
             ;;
     esac
 done
+
+# Expand tilde (~) if present in WORK_PATH
+export WORK_PATH="${WORK_PATH/#\~/$HOME}"
+
 str_arr+=("container volume mount config: "
-          "host work path: ${JAIL_PATH}"
+          "host work path: ${WORK_PATH}"
           "agent fs mount path: ${bind_path}"
           "vibe args: ${args}")
 printf "%s\n" "${str_arr[@]}"
@@ -36,12 +45,28 @@ printf "%s\n" "${str_arr[@]}"
 # Sanity check: Docker group
 [[ $(groups) =~ "docker" ]] || { echo "Error: $(whoami) not in docker group."; exit 1; }
 
-# Prep local config dir so Docker doesn't make it as root
+# persistent directories
+# for Vibe files
 mkdir -p "${contvibe_path}/.vibe_config"
+# persists/home/agent
+mkdir -p "${WORK_PATH}/.contvibe"
+
+# .gitignore adderifier
+ign_f="${WORK_PATH}/.gitignore"
+v_state=".contvibe"
+if [ -f "$ign_f" ]; then
+    if ! grep -qxF "/$v_state/" "$ign_f"; then
+        printf "\n# Contvibe isolated environment state\n/$v_state/\n" >> "$ign_f"
+    fi
+fi
 
 # Identity exports for the container
 export UA_UID=$(id -u)
 export UA_GID=$(id -g)
+
+# Users git config for the agent
+export UA_GIT_NAME=$(git config user.name || echo "Cont Vibe")
+export UA_GIT_EMAIL=$(git config user.email || echo "vibe@contvibe.sh.local")
 
 # Build and run
 cd "${contvibe_path}" # working dir for docker-compose

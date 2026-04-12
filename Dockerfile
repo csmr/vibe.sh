@@ -1,17 +1,15 @@
 # 1. BUILD STAGE
 FROM python:3.12-slim-bookworm as builder
 
-# Install everything needed to download/build (pinned versions)
+# Install everything needed to download/build
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       curl \
-      unzip=6.0-28 \
+      unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Deno (check for latest stable version)
-RUN curl -fsSL https://deno.land/x/install/install.sh -o /app/tmp/deno_install.sh && \
-    /bin/sh /app/tmp/deno_install.sh && \
-    rm /app/tmp/deno_install.sh
+# Install Deno
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh
 
 # Install mistral-vibe (get latest version)
 RUN pip install --no-cache-dir mistral-vibe
@@ -19,13 +17,16 @@ RUN pip install --no-cache-dir mistral-vibe
 # 2. RUNTIME STAGE
 FROM python:3.12-slim-bookworm
 
-# Install runtime deps, dev tools (pinned versions)
+ARG VIBE_HOME
+
+# Install runtime deps, dev tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      elixir=1.14.0.dfsg-2 \
+      elixir \
       git \
       curl \
       build-essential \
+      vim-tiny \
     && rm -rf /var/lib/apt/lists/* && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -45,14 +46,17 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/vibe /usr/local/bin/vibe
 
 # Create work dirs and prompts directory
-RUN mkdir -p /home/python/.vibe /home/python/.vibe/prompts /app
+RUN mkdir -p ${VIBE_HOME}/.vibe ${VIBE_HOME}/.vibe/prompts ${VIBE_HOME}/.cache/deno ${VIBE_HOME}/.mix ${VIBE_HOME}/.hex /app
 WORKDIR /app
 
-# Copy agent instructions (will be overridden by volume mount if present)
-COPY AGENTS.md /home/python/AGENTS.md
+# Configure Git to trust the project directory (prevents ownership mismatch errors)
+RUN git config --global --add safe.directory /app
 
-# Create config to use AGENTS.md as system prompt (mounted from host)
-RUN echo '[system]' > /home/python/.vibe/config.toml && \
-    echo 'prompt_id = "default"' >> /home/python/.vibe/config.toml
+# Copy agent instructions (will be overridden by volume mount if present)
+COPY AGENTS.md ${VIBE_HOME}/AGENTS.md
+
+# Create config to use AGENTS.md as system prompt
+RUN echo '[system]' > ${VIBE_HOME}/.vibe/config.toml && \
+    echo 'prompt_id = "default"' >> ${VIBE_HOME}/.vibe/config.toml
 
 ENTRYPOINT ["vibe"]

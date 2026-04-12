@@ -5,3 +5,6 @@
 # Docker / System
 .DS_Store
 *.log
+
+# Contvibe isolated environment state
+/.contvibe/
